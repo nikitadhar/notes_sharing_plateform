@@ -1,8 +1,13 @@
+import Logo from "../components/Logo";
+
 // Register.jsx
 export default function Register() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form className="bg-white p-6 rounded shadow-md w-full max-w-sm">
+      <div>
+        <Logo />
+      </div>
         <h2 className="text-2xl font-bold mb-4 text-center text-blue-600">Register</h2>
 
         <input

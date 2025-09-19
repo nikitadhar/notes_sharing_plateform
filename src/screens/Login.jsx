@@ -1,8 +1,13 @@
+import Logo from "../components/Logo";
+
 // Login.jsx
 export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form className="bg-white p-6 rounded shadow-md w-full max-w-sm">
+        <div>
+          <Logo/>
+        </div>
         <h2 className="text-2xl font-bold mb-4 text-center text-blue-600">Login</h2>
 
         <input
