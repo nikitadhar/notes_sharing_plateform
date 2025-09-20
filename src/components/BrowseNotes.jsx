@@ -46,7 +46,7 @@ export default function BrowseNotes() {
   });
   const handleChangeSemester = async (id) => {
     setForm({ ...form, ["semesterId"]: id });
-    const res = await get(`semesters/${id}/subjects`);
+    const res = await get(`semesters/${id}/subject`);
     console.log("subjects res", res)
     if (res?.statusCode === 200) {
       setAllSubjects(res?.data)
@@ -57,7 +57,7 @@ export default function BrowseNotes() {
   const handleChangeCourse = async (e) => {
     const id = e.target.value;
     setForm({ ...form, ["courseId"]: id });
-    const res = await get(`courses/${id}/semesters`);
+    const res = await get(`courses/${id}/semester`);
     console.log("subjects res", res)
     if (res?.statusCode === 200) {
       setAllSemesters(res?.data)
@@ -69,14 +69,14 @@ export default function BrowseNotes() {
     // For now just append new note to list
     const newNote = {
       title: form.title,
-      subject: form.subject,
-      semester: form.semester,
-      className: form.className,
+      subjectId: form.subjectId,
+      semesterId: form.semesterId,
+      courseId: form.courseId,
       uploadedBy: "You",
       fileUrl: "#"
     };
     setNotes([...notes, newNote]);
-    setForm({ title: "", subject: "", semester: "", className: "", file: null });
+    setForm({ title: "", courseId: "", semesterId: "", subjectId: "", file: null });
   };
   const uploadNotes = async (e) => {
     const file = e.target.files[0];
@@ -97,43 +97,40 @@ export default function BrowseNotes() {
 
     }
   }
-
- const getAllNotes = async (searchText) => {
+const getAllNotes = async (searchText) => {
   // Build the base filter
   let filter = {
-    include: {
-      relation: "subject",
-      scope: {
-        where: {}, // will be filled dynamically
-        include: {
-          relation: "semester",
-          scope: {
-            where: {}, // will be filled dynamically
-            include: {
-              relation: "course",
+    include: [
+      {
+        relation: "subject",
+        scope: {
+          where: {
+            name: { like: searchText, options: "i" }, // Case-insensitive search
+          },
+          include: [
+            {
+              relation: "semester",
               scope: {
-                where: {}, // will be filled dynamically
+                where: {
+                  name: { like: searchText, options: "i" },
+                },
+                include: [
+                  {
+                    relation: "course",
+                    scope: {
+                      where: {
+                        name: { like: searchText, options: "i" },
+                      },
+                    },
+                  },
+                ],
               },
             },
-          },
+          ],
         },
       },
-    },
+    ],
   };
-
-  // ✅ Add search filters dynamically if searchText is not empty
-  if (searchText && searchText.trim() !== "") {
-    const searchCondition = { like: searchText, options: "i" };
-
-    // Filter by subject name
-    filter.include.scope.where.name = searchCondition;
-
-    // Filter by semester name
-    filter.include.scope.include.scope.where.name = searchCondition;
-
-    // Filter by course name
-    filter.include.scope.include.scope.include.scope.where.name = searchCondition;
-  }
 
   // Make API request
   const allNotes = await get(
@@ -147,11 +144,13 @@ export default function BrowseNotes() {
   }
 };
 
+
   const xfatchFilterNotes = useCallback(debounce(getAllNotes, 300), []);
 
   const submitNotes = async () => {
     const noteUploadedRes = await post(`notes`, uploadData);
     console.log("noteUploadedRes...", noteUploadedRes)
+    xfatchFilterNotes(searchText);
   }
   const getAllCourses = async (e) => {
     const res = await get("courses");
@@ -276,6 +275,7 @@ export default function BrowseNotes() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {notes.map((note, idx) => (
           <div key={idx} className="p-4 bg-white shadow rounded hover:shadow-lg transition-shadow">
+          {console.log("titke",note.title)}
             <h3 className="text-xl font-semibold text-gray-800">{note.title}</h3>
             <p className="text-gray-600">Subject: {note?.subject?.name}</p>
             <p className="text-gray-600">Semester: {note?.subject?.semester?.name}</p>

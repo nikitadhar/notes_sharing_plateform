@@ -21,7 +21,7 @@ const returnToken = () => {
   return token?.admin?.id;
 };
 
-export const baseUrl = "http://10.120.54.7:3005/api/";
+export const baseUrl = "http://10.120.54.246:3005/api/";
 
 // export const baseUrl = `http://192.168.1.39:3010/api/`;
 
