@@ -5,8 +5,10 @@ import debounce from 'lodash/debounce';
 
 export default function BrowseNotes() {
   const [allCourses, setAllCourses] = useState([]);
-  const [allSemesters, setAllSemesters] = useState([]);
-  const [allSubjects, setAllSubjects] = useState([]);
+  const [selectedSemesters, setSelectedSemesters] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [allSemesters,setAllSemesters]=useState([]);
+  const [allSubjects,setAllSubjects]=useState([]);
   const [notes, setNotes] = useState([]);
   //   [
   //   {
@@ -36,6 +38,7 @@ export default function BrowseNotes() {
   // ]
   const [uploadData, setUploadData] = useState({});
   const [searchText, setSearchText] = useState("");
+  const [filter,setFilter]=useState({"course":"","semester":"","subject":""});
   // Temporary form state
   const [form, setForm] = useState({
     title: "",
@@ -49,7 +52,7 @@ export default function BrowseNotes() {
     const res = await get(`semesters/${id}/subject`);
     console.log("subjects res", res)
     if (res?.statusCode === 200) {
-      setAllSubjects(res?.data)
+      setSelectedSubjects(res?.data)
     }
     // const { name, value, files } = e.target;
     // setForm({ ...form, [name]: files ? files[0] : value });
@@ -60,7 +63,7 @@ export default function BrowseNotes() {
     const res = await get(`courses/${id}/semester`);
     console.log("subjects res", res)
     if (res?.statusCode === 200) {
-      setAllSemesters(res?.data)
+      setSelectedSemesters(res?.data)
     }
   };
 
@@ -97,45 +100,46 @@ export default function BrowseNotes() {
 
     }
   }
-const getAllNotes = async (searchText) => {
+const getAllNotes = async (searchText,filter) => {
   // Build the base filter
-  let filter = {
-    include: [
-      {
-        relation: "subject",
-        scope: {
-          where: {
-            name: { like: searchText, options: "i" }, // Case-insensitive search
-          },
-          include: [
-            {
-              relation: "semester",
-              scope: {
-                where: {
-                  name: { like: searchText, options: "i" },
-                },
-                include: [
-                  {
-                    relation: "course",
-                    scope: {
-                      where: {
-                        name: { like: searchText, options: "i" },
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          ],
-        },
-      },
-    ],
-  };
+  // let filter = {
+  //   include: [
+  //     {
+  //       relation: "subject",
+  //       scope: {
+  //         where: {
+  //           name: { like: searchText, options: "i" }, // Case-insensitive search
+  //         },
+  //         include: [
+  //           {
+  //             relation: "semester",
+  //             scope: {
+  //               where: {
+  //                 name: { like: searchText, options: "i" },
+  //               },
+  //               include: [
+  //                 {
+  //                   relation: "course",
+  //                   scope: {
+  //                     where: {
+  //                       name: { like: searchText, options: "i" },
+  //                     },
+  //                   },
+  //                 },
+  //               ],
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   ],
+  // };
 
   // Make API request
-  const allNotes = await get(
-    `notes?filter=${encodeURIComponent(JSON.stringify(filter))}`
-  );
+  // const allNotes = await get(
+  //   `notes?filter=${encodeURIComponent(JSON.stringify(filter))}`
+  // );
+    const allNotes = await post(`notes/getAllNotes`,{"text":searchText,"filter":filter});
 
   console.log("allNotes.....", allNotes);
 
@@ -150,7 +154,7 @@ const getAllNotes = async (searchText) => {
   const submitNotes = async () => {
     const noteUploadedRes = await post(`notes`, uploadData);
     console.log("noteUploadedRes...", noteUploadedRes)
-    xfatchFilterNotes(searchText);
+    xfatchFilterNotes(searchText,filter);
   }
   const getAllCourses = async (e) => {
     const res = await get("courses");
@@ -159,12 +163,28 @@ const getAllNotes = async (searchText) => {
       setAllCourses(res?.data)
     }
   };
+   const getAllSemester = async (e) => {
+    const res = await get("semesters");
+    console.log("rs......", res)
+    if (res?.statusCode === 200) {
+      setAllSemesters(res?.data)
+    }
+  };
+     const getAllSubjects = async (e) => {
+    const res = await get("subjects");
+    console.log("rs subjex......", res)
+    if (res?.statusCode === 200) {
+      setAllSubjects(res?.data)
+    }
+  };
   useEffect(() => {
     getAllCourses();
+    getAllSemester();
+    getAllSubjects();
   }, [])
   useEffect(() => {
-    xfatchFilterNotes(searchText);
-  }, [searchText])
+    xfatchFilterNotes(searchText,filter);
+  }, [searchText,filter])
   return (
     <div className="max-w-6xl mx-auto mt-10 px-4">
       <h2 className="text-3xl font-bold mb-6 text-blue-600 text-center">Browse & Upload Notes</h2>
@@ -203,7 +223,7 @@ const getAllNotes = async (searchText) => {
             className="w-full px-4 py-2 border rounded focus:outline-blue-400"
           >
             <option value="">Select Semester</option>
-            {allSemesters.map((semester, index) => (
+            {selectedSemesters?.map((semester, index) => (
               <option key={index} value={semester.id}>
                 {semester.name}
               </option>
@@ -217,7 +237,7 @@ const getAllNotes = async (searchText) => {
             className="w-full px-4 py-2 border rounded focus:outline-blue-400"
           >
             <option value="">Select Subject</option>
-            {allSubjects.map((sub, index) => (
+            {selectedSubjects?.map((sub, index) => (
               <option key={index} value={sub.id}>
                 {sub.name}
               </option>
@@ -249,27 +269,37 @@ const getAllNotes = async (searchText) => {
           className="w-full md:w-1/2 px-4 py-2 border rounded focus:outline-blue-400"
           onChange={(e) => setSearchText(e.target.value)}
         />
-        <select className="px-4 py-2 border rounded focus:outline-blue-400">
+        <select 
+        onChange={(e) => setFilter({ ...filter, subject: e.target.value })}
+        className="px-4 py-2 border rounded focus:outline-blue-400">
           <option>All Subjects</option>
-          <option>DSA</option>
-          <option>DBMS</option>
-          <option>OS</option>
+          {allSubjects?.map((sub, index) => (
+              <option key={index} value={sub.id}>
+                {sub.name}
+              </option>
+            ))}
         </select>
-        <select className="px-4 py-2 border rounded focus:outline-blue-400">
+        <select
+        onChange={(e) => setFilter({ ...filter, semester: e.target.value })}
+        className="px-4 py-2 border rounded focus:outline-blue-400">
           <option>All Semesters</option>
-          <option>1st Semester</option>
-          <option>2nd Semester</option>
-          <option>3rd Semester</option>
-          <option>4th Semester</option>
+          {allSemesters?.map((sem, index) => (
+              <option key={index} value={sem.id}>
+                {sem.name}
+              </option>
+            ))}
         </select>
-        <select className="px-4 py-2 border rounded focus:outline-blue-400">
-          <option>All Classes</option>
-          <option>BCA 1st Year</option>
-          <option>BCA 2nd Year</option>
-          <option>MCA 1st Year</option>
-          <option>B.Tech CSE 2nd Year</option>
+        <select
+        onChange={(e) => setFilter({ ...filter, course: e.target.value })}
+        className="px-4 py-2 border rounded focus:outline-blue-400">
+          <option>All Courses</option>
+          {allCourses.map((course, index) => (
+              <option key={index} value={course.id}>
+                {course.name}
+              </option>
+            ))}
         </select>
-      </div>
+      </div>  
 
       {/* Notes Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
