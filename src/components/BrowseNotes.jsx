@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { baseUrl, get, post } from "../services/api-services";
 import debounce from 'lodash/debounce';
+import { showSuccessToast } from "../utils/toastUtils";
 
 export default function BrowseNotes() {
   const [allCourses, setAllCourses] = useState([]);
@@ -153,9 +154,12 @@ const getAllNotes = async (searchText,filter) => {
 
   const submitNotes = async () => {
     const noteUploadedRes = await post(`notes`, uploadData);
+    console.log("noteUploadedRes",noteUploadedRes)
+    if(noteUploadedRes?.statusCode===200){
+    showSuccessToast("Notes uploaded succeessfully!");
     console.log("noteUploadedRes...", noteUploadedRes)
     xfatchFilterNotes(searchText,filter);
-  }
+  }}
   const getAllCourses = async (e) => {
     const res = await get("courses");
     console.log("rs......", res)

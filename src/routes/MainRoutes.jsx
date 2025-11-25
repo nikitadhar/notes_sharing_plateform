@@ -4,6 +4,7 @@ import Login from '../screens/Login'
 import Register from '../screens/Register'
 import BrowseNotes from '../components/BrowseNotes'
 import Index from '../screens/Index'
+import Dashboard from '../screens/Dashboard'
 
 
 export default function MainRoutes() {
@@ -14,6 +15,9 @@ export default function MainRoutes() {
       <Route path='/' element={<Index />}>
         <Route path='' element={<Home />} />
         <Route path='notes' element={<BrowseNotes />} />
+      </Route>
+      <Route path='/dashboard' >
+        <Route path='' element={<Dashboard />} />
       </Route>
     </Routes>
   )
