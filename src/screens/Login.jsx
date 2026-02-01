@@ -14,14 +14,14 @@ import { adminAuthState } from "../services/RecoilService";
   const onSubmitForm=async(e)=>{
     console.log("cdc")
     e.preventDefault();
-    const res=await post("Users/login",{"email":"nikitadhar142017@gmail.com",
-"password":"123456"});
+    const res=await post("Users/login",{"email":userData?.email,
+"password":userData?.password});
     console.log("res/.....",res)
       if (res?.statusCode === 200) {
       // setAuthState(res?.data);
       const userId = res?.data?.userId;
       showSuccessToast("User loggedin succeessfully!");
-      navigate("/dash");
+      navigate("/dashboard");
     }
   }
   return (
