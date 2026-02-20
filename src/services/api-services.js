@@ -21,9 +21,9 @@ const returnToken = () => {
   return token?.admin?.id;
 };
 
-export const baseUrl = "http://10.148.116.213:3005/api/";
+// export const baseUrl = "http://10.95.170.213:3005/api/";
 
-// export const baseUrl = `http://192.168.1.39:3010/api/`;
+export const baseUrl = `https://notes-sharing-api-4.onrender.com:3005/api/`;
 
 // INTERCEPTORS FOR REQUESTS
 

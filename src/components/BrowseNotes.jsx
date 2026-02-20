@@ -8,8 +8,8 @@ export default function BrowseNotes() {
   const [allCourses, setAllCourses] = useState([]);
   const [selectedSemesters, setSelectedSemesters] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
-  const [allSemesters,setAllSemesters]=useState([]);
-  const [allSubjects,setAllSubjects]=useState([]);
+  const [allSemesters, setAllSemesters] = useState([]);
+  const [allSubjects, setAllSubjects] = useState([]);
   const [notes, setNotes] = useState([]);
   //   [
   //   {
@@ -39,7 +39,7 @@ export default function BrowseNotes() {
   // ]
   const [uploadData, setUploadData] = useState({});
   const [searchText, setSearchText] = useState("");
-  const [filter,setFilter]=useState({"course":"","semester":"","subject":""});
+  const [filter, setFilter] = useState({ "course": "", "semester": "", "subject": "" });
   // Temporary form state
   const [form, setForm] = useState({
     title: "",
@@ -48,6 +48,8 @@ export default function BrowseNotes() {
     subjectId: "",
     file: null,
   });
+  const isDisabled = !form?.title || !form?.courseId || !form?.semesterId ;
+
   const handleChangeSemester = async (id) => {
     setForm({ ...form, ["semesterId"]: id });
     const res = await get(`semesters/${id}/subject`);
@@ -101,65 +103,66 @@ export default function BrowseNotes() {
 
     }
   }
-const getAllNotes = async (searchText,filter) => {
-  // Build the base filter
-  // let filter = {
-  //   include: [
-  //     {
-  //       relation: "subject",
-  //       scope: {
-  //         where: {
-  //           name: { like: searchText, options: "i" }, // Case-insensitive search
-  //         },
-  //         include: [
-  //           {
-  //             relation: "semester",
-  //             scope: {
-  //               where: {
-  //                 name: { like: searchText, options: "i" },
-  //               },
-  //               include: [
-  //                 {
-  //                   relation: "course",
-  //                   scope: {
-  //                     where: {
-  //                       name: { like: searchText, options: "i" },
-  //                     },
-  //                   },
-  //                 },
-  //               ],
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     },
-  //   ],
-  // };
+  const getAllNotes = async (searchText, filter) => {
+    // Build the base filter
+    // let filter = {
+    //   include: [
+    //     {
+    //       relation: "subject",
+    //       scope: {
+    //         where: {
+    //           name: { like: searchText, options: "i" }, // Case-insensitive search
+    //         },
+    //         include: [
+    //           {
+    //             relation: "semester",
+    //             scope: {
+    //               where: {
+    //                 name: { like: searchText, options: "i" },
+    //               },
+    //               include: [
+    //                 {
+    //                   relation: "course",
+    //                   scope: {
+    //                     where: {
+    //                       name: { like: searchText, options: "i" },
+    //                     },
+    //                   },
+    //                 },
+    //               ],
+    //             },
+    //           },
+    //         ],
+    //       },
+    //     },
+    //   ],
+    // };
 
-  // Make API request
-  // const allNotes = await get(
-  //   `notes?filter=${encodeURIComponent(JSON.stringify(filter))}`
-  // );
-    const allNotes = await post(`notes/getAllNotes`,{"text":searchText,"filter":filter});
+    // Make API request
+    // const allNotes = await get(
+    //   `notes?filter=${encodeURIComponent(JSON.stringify(filter))}`
+    // );
+    const allNotes = await post(`notes/getAllNotes`, { "text": searchText, "filter": filter });
 
-  console.log("allNotes.....", allNotes);
+    console.log("allNotes.....", allNotes);
 
-  if (allNotes?.statusCode === 200) {
-    setNotes(allNotes?.data);
-  }
-};
+    if (allNotes?.statusCode === 200) {
+      setNotes(allNotes?.data);
+    }
+  };
 
 
   const xfatchFilterNotes = useCallback(debounce(getAllNotes, 300), []);
 
   const submitNotes = async () => {
     const noteUploadedRes = await post(`notes`, uploadData);
-    console.log("noteUploadedRes",noteUploadedRes)
-    if(noteUploadedRes?.statusCode===200){
-    showSuccessToast("Notes uploaded succeessfully!");
-    console.log("noteUploadedRes...", noteUploadedRes)
-    xfatchFilterNotes(searchText,filter);
-  }}
+    console.log("noteUploadedRes", noteUploadedRes)
+    if (noteUploadedRes?.statusCode === 200) {
+      showSuccessToast("Notes uploaded succeessfully!");
+      console.log("noteUploadedRes...", noteUploadedRes)
+      xfatchFilterNotes(searchText, filter);
+    }
+  }
   const getAllCourses = async (e) => {
     const res = await get("courses");
     console.log("rs......", res)
@@ -167,14 +170,14 @@ const getAllNotes = async (searchText,filter) => {
       setAllCourses(res?.data)
     }
   };
-   const getAllSemester = async (e) => {
+  const getAllSemester = async (e) => {
     const res = await get("semesters");
     console.log("rs......", res)
     if (res?.statusCode === 200) {
       setAllSemesters(res?.data)
     }
   };
-     const getAllSubjects = async (e) => {
+  const getAllSubjects = async (e) => {
     const res = await get("subjects");
     console.log("rs subjex......", res)
     if (res?.statusCode === 200) {
@@ -187,8 +190,8 @@ const getAllNotes = async (searchText,filter) => {
     getAllSubjects();
   }, [])
   useEffect(() => {
-    xfatchFilterNotes(searchText,filter);
-  }, [searchText,filter])
+    xfatchFilterNotes(searchText, filter);
+  }, [searchText, filter])
   return (
     <div className="max-w-6xl mx-auto mt-10 px-4">
       <h2 className="text-3xl font-bold mb-6 text-blue-600 text-center">Browse & Upload Notes</h2>
@@ -257,8 +260,13 @@ const getAllNotes = async (searchText,filter) => {
 
           <button
             type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 md:col-span-2"
+            className={`px-6 py-2 rounded md:col-span-2
+    ${isDisabled
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
             onClick={submitNotes}
+            disabled={isDisabled}
           >
             Upload Note
           </button>
@@ -273,43 +281,43 @@ const getAllNotes = async (searchText,filter) => {
           className="w-full md:w-1/2 px-4 py-2 border rounded focus:outline-blue-400"
           onChange={(e) => setSearchText(e.target.value)}
         />
-        <select 
-        onChange={(e) => setFilter({ ...filter, subject: e.target.value })}
-        className="px-4 py-2 border rounded focus:outline-blue-400">
+        <select
+          onChange={(e) => setFilter({ ...filter, subject: e.target.value })}
+          className="px-4 py-2 border rounded focus:outline-blue-400">
           <option>All Subjects</option>
           {allSubjects?.map((sub, index) => (
-              <option key={index} value={sub.id}>
-                {sub.name}
-              </option>
-            ))}
+            <option key={index} value={sub.id}>
+              {sub.name}
+            </option>
+          ))}
         </select>
         <select
-        onChange={(e) => setFilter({ ...filter, semester: e.target.value })}
-        className="px-4 py-2 border rounded focus:outline-blue-400">
+          onChange={(e) => setFilter({ ...filter, semester: e.target.value })}
+          className="px-4 py-2 border rounded focus:outline-blue-400">
           <option>All Semesters</option>
           {allSemesters?.map((sem, index) => (
-              <option key={index} value={sem.id}>
-                {sem.name}
-              </option>
-            ))}
+            <option key={index} value={sem.id}>
+              {sem.name}
+            </option>
+          ))}
         </select>
         <select
-        onChange={(e) => setFilter({ ...filter, course: e.target.value })}
-        className="px-4 py-2 border rounded focus:outline-blue-400">
+          onChange={(e) => setFilter({ ...filter, course: e.target.value })}
+          className="px-4 py-2 border rounded focus:outline-blue-400">
           <option>All Courses</option>
           {allCourses.map((course, index) => (
-              <option key={index} value={course.id}>
-                {course.name}
-              </option>
-            ))}
+            <option key={index} value={course.id}>
+              {course.name}
+            </option>
+          ))}
         </select>
-      </div>  
+      </div>
 
       {/* Notes Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {notes.map((note, idx) => (
           <div key={idx} className="p-4 bg-white shadow rounded hover:shadow-lg transition-shadow">
-          {console.log("titke",note.title)}
+            {console.log("titke", note.title)}
             <h3 className="text-xl font-semibold text-gray-800">{note.title}</h3>
             <p className="text-gray-600">Subject: {note?.subject?.name}</p>
             <p className="text-gray-600">Semester: {note?.subject?.semester?.name}</p>
