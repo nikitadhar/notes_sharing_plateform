@@ -1,11 +1,11 @@
-import { useRecoilState } from "recoil";
+// import { useRecoilState } from "recoil";
 import { useState } from "react";
 import Logo from "../components/Logo";
 import { emailRegex, passwordRegex } from "../modules/regex";
 import { post } from "../services/api-services";
 import { useNavigate } from "react-router-dom";
 import { showSuccessToast } from "../utils/toastUtils";
-import { adminAuthState } from "../services/RecoilService";
+// import { adminAuthState } from "../services/RecoilService";
 // Login.jsx
  function Login() {
   // const [authState, setAuthState] = useRecoilState(adminAuthState);  
@@ -19,7 +19,7 @@ import { adminAuthState } from "../services/RecoilService";
     console.log("res/.....",res)
       if (res?.statusCode === 200) {
       // setAuthState(res?.data);
-      const userId = res?.data?.userId;
+      // const userId = res?.data?.userId;
       showSuccessToast("User loggedin succeessfully!");
       navigate("/dashboard");
     }

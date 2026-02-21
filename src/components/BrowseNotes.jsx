@@ -51,7 +51,7 @@ export default function BrowseNotes() {
   const isDisabled = !form?.title || !form?.courseId || !form?.semesterId ;
 
   const handleChangeSemester = async (id) => {
-    setForm({ ...form, ["semesterId"]: id });
+    setForm({ ...form, "semesterId": id });
     const res = await get(`semesters/${id}/subject`);
     console.log("subjects res", res)
     if (res?.statusCode === 200) {
@@ -62,7 +62,7 @@ export default function BrowseNotes() {
   };
   const handleChangeCourse = async (e) => {
     const id = e.target.value;
-    setForm({ ...form, ["courseId"]: id });
+    setForm({ ...form, "courseId": id });
     const res = await get(`courses/${id}/semester`);
     console.log("subjects res", res)
     if (res?.statusCode === 200) {
@@ -93,7 +93,7 @@ export default function BrowseNotes() {
     if (imgRes?.statusCode === 200) {
       console.log("imgRes?.data?.result?.files?.file[0]", imgRes?.data?.result?.files?.file[0])
       let note = imgRes?.data?.result?.files?.file[0].name;
-      let url = imgRes?.data?.result?.files?.file[0].name;
+      // let url = imgRes?.data?.result?.files?.file[0].name;
       const uploadDataTemp = {
         "title": form.title,
         "fileName": note,
@@ -151,7 +151,6 @@ export default function BrowseNotes() {
     }
   };
 
-
   const xfatchFilterNotes = useCallback(debounce(getAllNotes, 300), []);
 
   const submitNotes = async () => {
@@ -205,7 +204,7 @@ export default function BrowseNotes() {
             name="title"
             placeholder="Title"
             value={form.title}
-            onChange={(e) => setForm({ ...form, ["title"]: e.target.value })}
+            onChange={(e) => setForm({ ...form, "title": e.target.value })}
             className="w-full px-4 py-2 border rounded focus:outline-blue-400"
           />
           <select
@@ -240,7 +239,7 @@ export default function BrowseNotes() {
           <select
             name="className"
             value={form.subjectId}
-            onChange={(e) => setForm({ ...form, ["subjectId"]: e.target.value })}
+            onChange={(e) => setForm({ ...form, "subjectId": e.target.value })}
             className="w-full px-4 py-2 border rounded focus:outline-blue-400"
           >
             <option value="">Select Subject</option>
